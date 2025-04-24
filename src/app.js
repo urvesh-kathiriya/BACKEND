@@ -15,6 +15,11 @@ app.use(express.urlencoded({extended:true,limit:DATA_LIMIT}));
 app.use(express.static('public'));
 app.use(cookieParser());
 
+const api=process.env.API_URL || '/api/v1';
 
+import UserRouter from './routes/user.route.js';
+
+
+app.use(`${api}/user`,UserRouter)
 
 export default app;
