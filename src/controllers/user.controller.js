@@ -101,16 +101,35 @@ export const loginUser = asyncHandler(async (req, res) => {
 
     const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(user._id)
 
-    const loginuser = await User.findById(user._id).select({ password: 0, refreshToken: 0 })
+    const loginuser = await User.findById(user._id).select({ password: 0, refreshToken: 0 }) // to fetch user with refresh tokens
     if (!loginuser) {
         throw new ApiError(500, "Something went wrong while logging in the user")
     }
     return res.status(200)
-        .cookie("accessToken",accessToken,option)
-        .cookie("refreshToken",refreshToken,option)
+        .cookie("accessToken", accessToken, option)
+        .cookie("refreshToken", refreshToken, option)
         .json(
             new ApiResponse(200, { user: loginuser, accessToken, refreshToken }, "User logged in Successfully")
         )
 
 
+})
+
+export const logoutUser = asyncHandler(async (req, res) => {
+    const user = await User.findByIdAndUpdate(req.user._id, {
+        $set: {
+            refreshToken: ""
+        }
+    },
+        { new: true }
+    )
+    if (!user) {
+        throw new ApiError(500, "Something went wrong while logging out the user")
+    }
+    return res.status(200)
+    .clearCookie("accessToken",option)
+    .clearCookie("refreshToken",option)
+    .json(
+        new ApiResponse(200,{}, `${user.username} User logged out Successfully`)
+    )
 })
