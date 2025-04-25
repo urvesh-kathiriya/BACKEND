@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import uploadOnCloudinary from "../utils/cloudinary.js";
+import option from "../utils/Cookie.Option.js";
 
 const generateAccessAndRefereshTokens = async (userId) => {
     try {
@@ -16,10 +17,7 @@ const generateAccessAndRefereshTokens = async (userId) => {
         throw new ApiError(500, "Something went wrong while generating tokens")
     }
 }
-const option = {
-    httpOnly: true,
-    secure: true
-}
+
 
 export const registerUser = asyncHandler(async (req, res) => {
     const { username, email, fullName, password } = req.body
