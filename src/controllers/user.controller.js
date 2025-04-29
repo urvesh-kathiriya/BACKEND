@@ -2,7 +2,7 @@ import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import uploadOnCloudinary from "../utils/cloudinary.js";
+import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 import option from "../utils/Cookie.Option.js";
 
 const generateAccessAndRefereshTokens = async (userId) => {
@@ -176,3 +176,136 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
     }
 
 })
+
+export const changeCurrentPassword = asyncHandler(async (req, res) => {
+    const { oldpassword, newpassword } = req.body;
+
+    if (!oldpassword && !newpassword) {
+        throw new ApiError(400, "All fields are required")
+    }
+
+    const user = await User.findById(req.user?._id)
+    if (!user) {
+        throw new ApiError(404, "User not found")
+    }
+
+    const isValidPassword = await user.isPasswordCorrect(oldpassword)
+
+    if (!isValidPassword) {
+        throw new ApiError(401, "Invalid old password")
+    }
+    user.password = newpassword
+    await user.save({ validateBeforeSave: false })
+    return res.status(200).json(
+        new ApiResponse(200, {}, "Password changed successfully")
+    )
+})
+
+export const getCurrentUser = asyncHandler(async (req, res) => {
+    return res.status(200).json(
+        new ApiResponse(200, req.user, "current user fetched successfully")
+    )
+})
+
+export const updateAccountDetails = asyncHandler(async (req, res) => {
+    const { email, fullName } = req.body
+
+    if (!email && !fullName) {
+        throw new ApiError(400, "All fields are required")
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set: {
+                email,
+                fullName
+            }
+        },
+        { new: true }
+    ).select({ password: 0, refreshToken: 0 })
+    if (!user) {
+        throw new ApiError(404, "User not found")
+    }
+    return res.status(200).json(
+        new ApiResponse(200, user, "User updated successfully")
+    )
+})
+
+export const updateUserAvatar = asyncHandler(async (req, res) => {
+    const avatarLocalPath = req.file?.path;
+
+    if (!avatarLocalPath) {
+        throw new ApiError(400, "Avatar file is required")
+    }
+
+    const existuser = await User.findById(req.user?._id)
+    if (!existuser) {
+        throw new ApiError(404, "User not found")
+    }
+    const deletedavtar = await deleteFromCloudinary(existuser?.avatar)
+    if (!deletedavtar) {
+        throw new ApiError(400, "Prev Avatar file is not deleted from server")
+    }
+
+    const avatar = await uploadOnCloudinary(avatarLocalPath)
+    if (!avatar) {
+        throw new ApiError(400, "Avatar file is not upload on server")
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set: {
+                avatar: avatar.url
+            }
+        },
+        { new: true }
+    ).select({ password: 0, refreshToken: 0 })
+    if (!user) {
+        throw new ApiError(404, "User not found")
+    }
+    return res.status(200).json(
+        new ApiResponse(200, { "avatar": user.avatar }, "User avatar updated successfully")
+    )
+}
+)
+
+export const updateUserCoverImage = asyncHandler(async (req, res) => {
+    const coverImageLocalPath = req.file?.path;
+
+    if (!coverImageLocalPath) {
+        throw new ApiError(400, "Cover Image file is required")
+    }
+
+    const existuser = await User.findById(req.user?._id)
+    if (!existuser) {
+        throw new ApiError(404, "User not found")
+    }
+    const deletedcoverImage = await deleteFromCloudinary(existuser?.coverImage)
+    if (!deletedcoverImage) {
+        throw new ApiError(400, "Prev Cover Image file is not deleted from server")
+    }
+
+    const CoverImage = await uploadOnCloudinary(coverImageLocalPath)
+    if (!CoverImage) {
+        throw new ApiError(400, "Cover Image file is not upload on server")
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set: {
+                coverImage: CoverImage.url
+            }
+        },
+        { new: true }
+    ).select({ password: 0, refreshToken: 0 })
+    if (!user) {
+        throw new ApiError(404, "User not found")
+    }
+    return res.status(200).json(
+        new ApiResponse(200, { "coverImage": user.coverImage }, "User Cover Image updated successfully")
+    )
+}
+)

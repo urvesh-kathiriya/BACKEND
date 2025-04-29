@@ -1,8 +1,8 @@
-import cloudinary from"../config/cloudinary.config.js";
+import cloudinary from "../config/cloudinary.config.js";
 import fs from "fs";
 
 
-const uploadOnCloudinary = async (localFilePath) => {
+export const uploadOnCloudinary = async (localFilePath) => {
     try {
         if (!localFilePath) return null
         //upload the file on cloudinary
@@ -20,4 +20,17 @@ const uploadOnCloudinary = async (localFilePath) => {
     }
 }
 
-export default uploadOnCloudinary;
+export const deleteFromCloudinary = async (imageUrl) => {
+    try {
+        // Extract public ID from URL
+        const urlParts = imageUrl.split('/');
+        const fileNameWithExt = urlParts[urlParts.length - 1];
+        const publicId = fileNameWithExt.split('.')[0]; // Remove extension
+
+        const result = await cloudinary.uploader.destroy(publicId);
+        return result.result === 'ok'; 
+    } catch (error) {
+        console.error('Error deleting image:', error);
+    }
+}
+
