@@ -243,8 +243,8 @@ export const updateUserAvatar = asyncHandler(async (req, res) => {
     if (!existuser) {
         throw new ApiError(404, "User not found")
     }
-    const deletedavtar = await deleteFromCloudinary(existuser?.avatar)
-    if (!deletedavtar) {
+    const deletedPrevAvatar = await deleteFromCloudinary(existuser?.avatar)
+    if (!deletedPrevAvatar) {
         throw new ApiError(400, "Prev Avatar file is not deleted from server")
     }
 
@@ -282,8 +282,8 @@ export const updateUserCoverImage = asyncHandler(async (req, res) => {
     if (!existuser) {
         throw new ApiError(404, "User not found")
     }
-    const deletedcoverImage = await deleteFromCloudinary(existuser?.coverImage)
-    if (!deletedcoverImage) {
+    const deletedPrevcoverImage = await deleteFromCloudinary(existuser?.coverImage)
+    if (!deletedPrevcoverImage) {
         throw new ApiError(400, "Prev Cover Image file is not deleted from server")
     }
 
