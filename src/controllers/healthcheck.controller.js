@@ -3,7 +3,7 @@ import { ApiResponse } from "../utils/ApiResponse.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
 
 
-const healthcheck = asyncHandler(async (req, res) => {
+export const healthcheck = asyncHandler(async (req, res) => {
     try {
         const health = {
             status: 'ok',
@@ -17,7 +17,3 @@ const healthcheck = asyncHandler(async (req, res) => {
         
     }
 })
-
-export {
-    healthcheck
-}
