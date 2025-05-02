@@ -427,4 +427,9 @@ export const getWatdhHistory = asyncHandler(async (req, res) => {
             }
         }
     ])
+    return res
+    .status(200)
+    .json(
+        ApiResponse(200, user[0]?.watchHistory, "User watch history fetched successfully")
+    )
 })
