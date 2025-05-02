@@ -44,8 +44,11 @@ UserRouter.route("/login").post(loginUser)
 UserRouter.route("/logout").post(verifyJWT, logoutUser)
 UserRouter.route("/refresh-token").post(refreshAccessToken)
 UserRouter.route("/change-password").post(verifyJWT, changeCurrentPassword)
-UserRouter.route("/update-details").post(verifyJWT, updateAccountDetails)
-UserRouter.route("/update-avatar").post(verifyJWT,upload.single("avatar"), updateUserAvatar)
-UserRouter.route("/update-coverImage").post(verifyJWT,upload.single("coverImage"), updateUserCoverImage)
+
+//PATCH
+
+UserRouter.route("/update-details").patch(verifyJWT, updateAccountDetails)
+UserRouter.route("/update-avatar").patch(verifyJWT,upload.single("avatar"), updateUserAvatar)
+UserRouter.route("/update-coverImage").patch(verifyJWT,upload.single("coverImage"), updateUserCoverImage)
 
 export default UserRouter;
