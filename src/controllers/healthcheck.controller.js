@@ -4,7 +4,18 @@ import { asyncHandler } from "../utils/asyncHandler.js"
 
 
 const healthcheck = asyncHandler(async (req, res) => {
-    //TODO: build a healthcheck response that simply returns the OK status as json with a message
+    try {
+        const health = {
+            status: 'ok',
+            uptime: process.uptime(),
+            timestamp: Date.now(),
+        };
+        return ApiResponse(200, health , "Health check successful")
+        
+    } catch (error) {
+        return ApiError(500, error.message, "Health check failed")
+        
+    }
 })
 
 export {
